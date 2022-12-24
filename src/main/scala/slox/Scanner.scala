@@ -50,7 +50,7 @@ case class Scanner(val src: String):
           case _    => addToken(SLASH, state)
       case ' ' | '\r' | '\t' => (None, state)
       case '\n' =>
-        (None, ScannerState("", state.source, state.line + 1))
+        (None, state.uLin(state.line + 1))
       case '"' =>
         val (head, tail) = state.source.span(_ != '"')
         if (tail.isEmpty())

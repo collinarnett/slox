@@ -9,7 +9,7 @@ Implementation of Lox from the book, [Crafting Interpreters](https://craftingint
 1. Scanning
 	- [X] Single Lexemes
 	- [X] OneOrTwo Lexemes
-	- [ ] String Literals
+	- [X] String Literals
 	- [ ] Number Literals
 2. Representing Code
 3. Parsing Expressions
