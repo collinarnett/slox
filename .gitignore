@@ -25,4 +25,4 @@ target/
 .cache
 
 # Vim
-.swp
+*.swp
