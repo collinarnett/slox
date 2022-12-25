@@ -3,7 +3,7 @@ package com.craftinginterpreters.lox
 case class Token(
     val _type: TokenType,
     val lexeme: String,
-    val literal: Object,
+    val literal: Any,
     val line: Int
 ):
   override def toString() =

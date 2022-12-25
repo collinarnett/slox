@@ -1,5 +1,5 @@
 {
-  description = "A todo list with DnD style gamification";
+  description = "Implementation of Lox from the book, Crafting Interpreters by Robert Nystrom.";
 
   inputs = {
     sbt-derivation.url = "github:zaninime/sbt-derivation";
@@ -12,8 +12,8 @@
   }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-    packageName = "lox";
-    version = "0.0.1";
+    packageName = "slox";
+    version = "0.1";
     build = sbt-derivation.mkSbtDerivation.${system} {
       pname = "${packageName}";
       version = "${version}";

@@ -4,6 +4,7 @@ import One.*
 import Two.*
 import Literal.*
 import Keyword.*
+import java.rmi.UnexpectedException
 
 case class Scanner(val src: String):
   def scanTokens(
@@ -44,26 +45,18 @@ case class Scanner(val src: String):
       case '/' =>
         state.source.headOption match
           case Some('/') =>
-            val (head, tail) = state.source.span(_ != '\n')
+            val (_, tail) = state.source.span(_ != '\n')
             (None, state.uSrc(state.source.tail))
           case None => addToken(SLASH, state.uSrc(""))
           case _    => addToken(SLASH, state)
       case ' ' | '\r' | '\t' => (None, state)
       case '\n' =>
         (None, state.uLin(state.line + 1))
-      case '"' =>
-        val (head, tail) = state.source.span(_ != '"')
-        if (tail.isEmpty())
-          Slox().error(state.line, "Unterminated string.")
-          (None, state)
-        else
-          (
-            Some(Token(STRING, head, head, state.line)),
-            state
-              .uSrc(tail.tail)
-              .uLin(state.line + head.count(_ == '\n'))
-          )
-      case _ => (None, state)
+      case '"'                           => stringLiteral(c, state)
+      case x if '0' until '9' contains x => numberLiteral(x, state)
+      case _ =>
+        Slox().error(state.line, "Unexpected character.")
+        (None, state)
   private def addToken(
       _type: TokenType,
       state: ScannerState
@@ -85,6 +78,45 @@ case class Scanner(val src: String):
           state.uSrc(source.tail)
         )
       case _ => (Some(Token(op1, state.lexeme, None, line)), state)
+  private def stringLiteral(c: Char, state: ScannerState) =
+    val (head, tail) = state.source.span(_ != '"')
+    if tail.isEmpty then
+      Slox().error(state.line, "Unterminated string.")
+      (None, state)
+    else
+      (
+        Some(Token(STRING, head, head, state.line)),
+        state
+          .uSrc(tail.tail)
+          .uLin(state.line + head.count(_ == '\n'))
+      )
+  private def numberLiteral(c: Char, state: ScannerState) =
+    val (head, tail) = state.source.span(_ != '.')
+    println(s"head is $head\ntail is $tail")
+    if (head.isEmpty() && tail.isEmpty()) then
+      (Some(Token(NUMBER, c.toString, c.toDouble, state.line)), state)
+    else if tail.isEmpty then
+      val (numbers, rest) = head.span(_.isDigit)
+      println(s"rest is $rest")
+      val number = c + numbers
+      (
+        Some(Token(NUMBER, number, number.toDouble, state.line)),
+        state.uSrc(rest)
+      )
+    else
+      val (x, y) = tail.tail.span(_.isDigit)
+      // TODO: Need to refactor
+      (
+        Some(
+          Token(
+            NUMBER,
+            c + head + tail.head + x,
+            (c + head + tail.head + x).toDouble,
+            state.line
+          )
+        ),
+        state.uSrc(y)
+      )
 
 case class ScannerState(
     val lexeme: String,
