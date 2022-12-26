@@ -4,9 +4,29 @@ import One.*
 import Two.*
 import Literal.*
 import Keyword.*
-import java.rmi.UnexpectedException
+
+object Keywords:
+  val keywords = Map[String, Keyword](
+    "and" -> AND,
+    "class" -> CLASS,
+    "else" -> ELSE,
+    "false" -> FALSE,
+    "for" -> FOR,
+    "fun" -> FUN,
+    "if" -> IF,
+    "nil" -> NIL,
+    "or" -> OR,
+    "print" -> PRINT,
+    "return" -> RETURN,
+    "super" -> SUPER,
+    "this" -> THIS,
+    "true" -> TRUE,
+    "var" -> VAR,
+    "while" -> WHILE
+  )
 
 case class Scanner(val src: String):
+  import Keywords.*
   def scanTokens(
       state: ScannerState = ScannerState("", src, 0),
       tokens: Tokens = Tokens(Seq())
@@ -53,8 +73,9 @@ case class Scanner(val src: String):
       case ' ' | '\r' | '\t' => (None, state)
       case '\n' =>
         (None, state.uLin(state.line + 1))
-      case '"'                           => stringLiteral(c, state)
-      case x if '0' until '9' contains x => numberLiteral(x, state)
+      case '"'             => stringLiteral(c, state)
+      case n if n.isDigit  => numberLiteral(n, state)
+      case a if a.isLetter => scanIdentifier(a, state)
       case _ =>
         Slox().error(state.line, "Unexpected character.")
         (None, state)
@@ -91,17 +112,20 @@ case class Scanner(val src: String):
       case _ => (Some(Token(op1, state.lexeme, None, line)), state)
 
   private def stringLiteral(c: Char, state: ScannerState) =
-    val (head, tail) = state.source.span(_ != '"')
-    if tail.isEmpty then
-      Slox().error(state.line, "Unterminated string.")
-      (None, state)
-    else
-      (
-        Some(Token(STRING, head, head, state.line)),
-        state
-          .uSrc(tail.tail)
-          .uLin(state.line + head.count(_ == '\n'))
-      )
+    val (prefix, suffix) = state.source.span(_ != '"')
+    prefix match
+      case _ if suffix.isEmpty =>
+        Slox().error(state.line, "Unterminated string.")
+        (None, state)
+      case _ =>
+        addToken(
+          STRING,
+          prefix,
+          prefix,
+          state
+            .uSrc(suffix.tail)
+            .uLin(state.line + prefix.count(_ == '\n'))
+        )
 
   private def numberLiteral(digit: Char, state: ScannerState) =
     val number = digit + scanNumber(state.source)
@@ -124,6 +148,12 @@ case class Scanner(val src: String):
                      "." + suffix.tail.takeWhile(_.isDigit)
                    else "")
       case _ => integer
+
+  private def scanIdentifier(c: Char, state: ScannerState) =
+    val (prefix, source) = state.source.span(_.isLetter)
+    val identifier = c + prefix
+    val _type = keywords.getOrElse(identifier, IDENTIFIER)
+    addToken(_type, identifier, None, state.uSrc(source))
 
 case class ScannerState(
     val lexeme: String,
