@@ -23,6 +23,7 @@ case class Scanner(val src: String):
     tokenOption match
       case Some(token) => scanTokens(_state, tokens :+ token)
       case _           => scanTokens(_state, tokens)
+
   private def scanToken(
       c: Char,
       state: ScannerState
@@ -57,11 +58,21 @@ case class Scanner(val src: String):
       case _ =>
         Slox().error(state.line, "Unexpected character.")
         (None, state)
+
   private def addToken(
       _type: TokenType,
       state: ScannerState
   ): (Option[Token], ScannerState) =
     (Some(Token(_type, state.lexeme, None, state.line)), state)
+
+  private def addToken(
+      _type: TokenType,
+      lexeme: String,
+      literal: Any,
+      state: ScannerState
+  ): (Option[Token], ScannerState) =
+    (Some(Token(_type, lexeme, literal, state.line)), state)
+
   private def addToken(
       op1: One,
       op2: Two,
@@ -78,6 +89,7 @@ case class Scanner(val src: String):
           state.uSrc(source.tail)
         )
       case _ => (Some(Token(op1, state.lexeme, None, line)), state)
+
   private def stringLiteral(c: Char, state: ScannerState) =
     val (head, tail) = state.source.span(_ != '"')
     if tail.isEmpty then
@@ -90,33 +102,28 @@ case class Scanner(val src: String):
           .uSrc(tail.tail)
           .uLin(state.line + head.count(_ == '\n'))
       )
-  private def numberLiteral(c: Char, state: ScannerState) =
-    val (head, tail) = state.source.span(_ != '.')
-    println(s"head is $head\ntail is $tail")
-    if (head.isEmpty() && tail.isEmpty()) then
-      (Some(Token(NUMBER, c.toString, c.toDouble, state.line)), state)
-    else if tail.isEmpty then
-      val (numbers, rest) = head.span(_.isDigit)
-      println(s"rest is $rest")
-      val number = c + numbers
-      (
-        Some(Token(NUMBER, number, number.toDouble, state.line)),
-        state.uSrc(rest)
-      )
-    else
-      val (x, y) = tail.tail.span(_.isDigit)
-      // TODO: Need to refactor
-      (
-        Some(
-          Token(
-            NUMBER,
-            c + head + tail.head + x,
-            (c + head + tail.head + x).toDouble,
-            state.line
-          )
-        ),
-        state.uSrc(y)
-      )
+
+  private def numberLiteral(digit: Char, state: ScannerState) =
+    val number = digit + scanNumber(state.source)
+    addToken(
+      NUMBER,
+      number,
+      number.toDouble,
+      state.uSrc(state.source.drop(number.length))
+    )
+
+  private def scanNumber(s: String) =
+    val (integer, suffix) = s.span(c => c != '.' && c.isDigit)
+    suffix match
+      case _ if !(suffix.isEmpty) =>
+        integer + (if (
+                     suffix.head == '.' && suffix
+                       .applyOrElse(1, _ => ' ')
+                       .isDigit
+                   )
+                     "." + suffix.tail.takeWhile(_.isDigit)
+                   else "")
+      case _ => integer
 
 case class ScannerState(
     val lexeme: String,
