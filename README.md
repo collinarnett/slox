@@ -11,8 +11,8 @@ Implementation of Lox from the book, [Crafting Interpreters](https://craftingint
 	- [X] OneOrTwo Lexemes
 	- [X] String Literals
 	- [X] Number Literals
-	- [ ] Reserved Words and Identifiers
-	- [ ] Clean up/Refactor
+	- [X] Reserved Words and Identifiers
+	- [X] Clean up/Refactor
 2. Representing Code
 3. Parsing Expressions
 4. Evaluating Expressions
