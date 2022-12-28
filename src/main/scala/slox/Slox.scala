@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox
+package com.craftinginterpreters.slox
 
 import java.io.BufferedReader
 import java.io.IOException
@@ -38,7 +38,7 @@ case class Slox():
       s"[line $line] Error $where: $message"
     )
 
-object Lox:
+object Slox:
   def main(args: Array[String]) =
     if (args.length > 1)
       println("Usage: jlox [script]")

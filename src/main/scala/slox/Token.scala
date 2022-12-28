@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox
+package com.craftinginterpreters.slox
 
 case class Token(
     val _type: TokenType,
