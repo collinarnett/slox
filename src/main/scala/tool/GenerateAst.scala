@@ -42,7 +42,7 @@ object GenerateAst:
         Field("right", "Expr")
       ),
       "Grouping" -> Seq(
-        Field("Expr", "experession")
+        Field("expression", "Expr")
       ),
       "Literal" -> Seq(
         Field("value", "Any")
