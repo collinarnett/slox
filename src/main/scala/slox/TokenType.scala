@@ -14,7 +14,7 @@ enum One extends OneOrTwo:
 enum Two extends OneOrTwo:
   case BANG_EQUAL, EQUAL_EQUAL, GREATER_EQUAL, LESS_EQUAL
 
-enum Literal extends TokenType:
+enum _Literal extends TokenType:
   // Literals.
   case IDENTIFIER, STRING, NUMBER
 

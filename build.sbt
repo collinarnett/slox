@@ -4,5 +4,6 @@ ThisBuild / version := "0.1"
 
 lazy val slox = (project in file("."))
   .settings(
-    name := "slox"
+    name := "slox",
+    scalacOptions ++= Seq("-deprecation")
   )
