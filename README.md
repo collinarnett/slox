@@ -14,11 +14,14 @@ Implementation of Lox from the book, [Crafting Interpreters](https://craftingint
 	- [X] Reserved Words and Identifiers
 	- [X] Clean up/Refactor
 2. Representing Code
-3. Parsing Expressions
-4. Evaluating Expressions
-5. Statements and State
-6. Control Flow
-7. Functions
-8. Resolving and Binding
-9. Classes
-10. Inheritance
+	- [X] Expression Representation
+	- [X] AST printer
+	- [ ] Clean up/Refactor
+4. Parsing Expressions
+5. Evaluating Expressions
+6. Statements and State
+7. Control Flow
+8. Functions
+9. Resolving and Binding
+10. Classes
+11. Inheritance
